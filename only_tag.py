@@ -1,8 +1,9 @@
 from matplotlib import font_manager, rc
 import matplotlib.pyplot as plt
 import pandas as pd
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+import math
 
 rating = pd.read_csv('ratings.csv')
 tag = pd.read_csv('tags.csv')
@@ -53,7 +54,7 @@ sentences = []
 for sentence in s_array:
     sentences.append(sentence)
 
-WINDOW_SIZE = 2
+WINDOW_SIZE = 1
 
 data = []
 for sentence in sentences:
@@ -63,7 +64,6 @@ for sentence in sentences:
                 data.append([word, neighbor])
 
 df = pd.DataFrame(data, columns=['input', 'label'])
-
 
 ONE_HOT_DIM = len(words)
 
@@ -75,6 +75,15 @@ def to_one_hot_encoding(data_point_index):
     one_hot_encoding = np.zeros(ONE_HOT_DIM)
     one_hot_encoding[data_point_index] = 1
     return one_hot_encoding
+
+
+def xavier_init(n_inputs, n_outputs, uniform=True):
+    if uniform:
+        init_range = math.sqrt(6.0 / (n_inputs + n_outputs))
+        return tf.random_uniform_initializer(-init_range, init_range)
+    else:
+        stddev = math.sqrt(3.0 / (n_inputs + n_outputs))
+        return tf.truncated_normal_initializer(stddev=stddev)
 
 
 X = []  # 입력 배열입니다.
@@ -96,26 +105,27 @@ y_label = tf.placeholder(tf.float32, shape=(None, ONE_HOT_DIM))
 EMBEDDING_DIM = 2
 
 # 이 두개의 값은 각각 히든레이어의 변수가 됩니다.
-W1 = tf.Variable(tf.random_normal([ONE_HOT_DIM, EMBEDDING_DIM]))
+W1 = tf.get_variable("W1", shape=[ONE_HOT_DIM, EMBEDDING_DIM],  initializer=tf.contrib.layers.xavier_initializer())
 b1 = tf.Variable(tf.random_normal([1]))
 hidden_layer = tf.add(tf.matmul(x, W1), b1)
 
 # 출력값
-W2 = tf.Variable(tf.random_normal([EMBEDDING_DIM, ONE_HOT_DIM]))
+W2 = tf.get_variable("W2", shape=[EMBEDDING_DIM, ONE_HOT_DIM],  initializer=tf.contrib.layers.xavier_initializer())
 b2 = tf.Variable(tf.random_normal([1]))
 prediction = tf.nn.softmax(tf.add(tf.matmul(hidden_layer, W2), b2))
+
 
 # 코스트합수 : 크로스 엔트로피
 loss = tf.reduce_mean(-tf.reduce_sum(y_label * tf.log(prediction), axis=[1]))
 
 # 학습과정
-train_op = tf.train.GradientDescentOptimizer(0.03).minimize(loss)
+train_op = tf.train.AdamOptimizer(0.1).minimize(loss)
 
 sess = tf.Session()
 init = tf.global_variables_initializer()
 sess.run(init)
 
-iteration = 30000
+iteration = 68
 for i in range(iteration):
     sess.run(train_op, feed_dict={x: X_train, y_label: Y_train})
     print('학습 ' + str(i) + ' 현재 코스트 : ', sess.run(loss, feed_dict={x: X_train, y_label: Y_train}))
@@ -127,24 +137,20 @@ w2v_df = pd.DataFrame(vectors, columns=['x1', 'x2'])
 w2v_df['word'] = words
 w2v_df = w2v_df[['word', 'x1', 'x2']]
 
-font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get_name()
-rc('font', family=font_name)
-# 한국어 폰트 설정
-
 fig, ax = plt.subplots()
 
 for word, x1, x2 in zip(w2v_df['word'], w2v_df['x1'], w2v_df['x2']):
     ax.annotate(word, (x1, x2))
+PADDING = 5.5
 
-PADDING = 1.0
-x_axis_min = np.amin(vectors, axis=0)[0] - PADDING
-y_axis_min = np.amin(vectors, axis=0)[1] - PADDING
-x_axis_max = np.amax(vectors, axis=0)[0] + PADDING
-y_axis_max = np.amax(vectors, axis=0)[1] + PADDING
+x_axis_min = (np.amin(vectors, axis=0)[0] - PADDING) * 0.08
+y_axis_min = (np.amin(vectors, axis=0)[1] - PADDING) * 0.08
+x_axis_max = (np.amax(vectors, axis=0)[0] + PADDING) * 0.08
+y_axis_max = (np.amax(vectors, axis=0)[1] + PADDING) * 0.08
 
 plt.xlim(x_axis_min, x_axis_max)
 plt.ylim(y_axis_min, y_axis_max)
-plt.rcParams["figure.figsize"] = (10, 10)
+plt.rcParams["figure.figsize"] = (0.04, 0.04)
 
 plt.show()
 # matplotlib을 이용한 시각화

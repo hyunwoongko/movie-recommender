@@ -9,23 +9,10 @@ def get_over_three_movie(rating_df):
     return df_over_three
 
 
-def recommend(semantic_df, get_movie_tag, movieId):
-    result = []
-    tags = []
-
-    for i in range(0, len(get_movie_tag(movieId))):
-        tag = get_movie_tag(movieId)[i][0]
-        tags.append(tag)
-
-    recommend_df = semantic_df[semantic_df['tag'].isin(tags)]
-    recommend_df = recommend_df.drop('tag', axis=1)
-    recommend_df = recommend_df.drop_duplicates()
-    for data in recommend_df.values:
-        result.append(data[0])
-
-    if movieId in result:
-        result.remove(movieId)
-    return result
+def get_movieId_tag_df(tag_df):
+    tag_df = tag_df.drop('userId', axis=1)
+    tag_df = tag_df.drop('timestamp', axis=1)
+    return tag_df
 
 
 def id_to_name(movieId, movie_df):

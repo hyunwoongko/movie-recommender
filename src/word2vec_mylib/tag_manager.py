@@ -56,10 +56,87 @@ def get_semantic_tag(test_movie_id, movieTag):
     for i in sorted_list:
         array = [i[0], i[1]]
         semantic.append(array)
-        if len(semantic) > 2:
-            break
     return semantic
 
 
+def get_recommend_tags(TF_list, model):
+    numberOfAll = 0
+    minTagWeight = 0
+    temp = []
 
+    for tag, numberOfTimes in TF_list:
+        numberOfAll += numberOfTimes
+        # 태그 가중치의 총합을 구함
 
+    for tag, numberOfTimes in TF_list:
+        weightForTag = (numberOfTimes / numberOfAll) * 10
+        index = round(weightForTag)
+        minTagWeight = index
+        # 태그별 가중치를 구하고 모델을 사용할 최소가중치를 구함
+
+    for tag, numberOfTimes in TF_list:
+        weightForTag = (numberOfTimes / numberOfAll) * 10
+        index = round(weightForTag)
+        if index != 0:  # 그영화의 모든 태그중 가중치가 10퍼센트 이상인 태그라면
+            temp.append(tag)  # 그 영화의 태그를 리스트에 담음
+
+        if tag in model.wv.vocab and index > minTagWeight:
+            for similar in model.wv.most_similar(tag):  # 아까 구한 모델을 사용할 최소가중치를 넘어서는 태그들은
+                temp.append(similar[0])  # 모델에 넣어서 유사한 태그들도 가중치에 맞게 뽑아냄.
+                index = index - 1  # 가중치만큼 반복해서 뽑음.
+                if index == 0:
+                    break
+
+    distinct_list = list(set(temp))
+    # 중복 제거
+    additional_append = []
+    if len(distinct_list) == 0:  # 태그리스트의 길이가 0이면 태그가 하나도 없는 영화임
+        pass  # 그냥 지나침 ---> 어차피 추천을 해줄수 없음
+
+    elif len(distinct_list) == 1:  # 태그 리스트의 길이가 1 (태그가 1개인 영화)
+        for tag in distinct_list:  # 그 1개 태그와 유사한 7개 태그를 리스트에 담아냄
+            if tag in model.wv.vocab:
+                for new_item in model.wv.most_similar(tag):
+                    additional_append.append(new_item[0])
+                    if len(additional_append) >= 7:
+                        break
+
+    elif len(distinct_list) < 7:  # 태그가 1개이상 7개 미만인 경우
+        for tag in distinct_list:  # 태그별로 한개씩 담아서 7개 이상으로 만듬
+            if tag in model.wv.vocab:  # 예) 태그 5개 -> 1번유사태그1개 , 2번유사태그1개 리스트에 담음
+                new = list(model.wv.most_similar(tag)[0])
+                additional_append.append(new[0])
+            if len(additional_append) > 7:
+                break
+
+    for new_item in additional_append:  # 새로 꺼내온 아이템을 담아냄.
+        distinct_list.append(new_item)
+    distinct_list = list(set(distinct_list))
+
+    if len(distinct_list) > 15:  # 만약 이러한 모든 과정을 거친뒤 태그의 갯수가 15개 이상이라면
+        minTagWeight = minTagWeight + 1  # 모델을 사용할 태그가중치를 1올림
+        distinct_list.clear()  # 다비우고
+        temp.clear()  # 처음부터 다시
+
+        for tag, numberOfTimes in TF_list:  # 위와 같은과정을 거치지만
+            weightForTag = (numberOfTimes / numberOfAll) * 10  # 최소모델 사용 가중치를 1높혔기 때문에
+            index = round(weightForTag)  # 아까보다 10퍼센트 더 높은 비중이 있는 태그들만
+            if index != 0:  # 모델에 넣어서 비슷한 태그를 뽑고 아니면 그냥 그 태그만 담고, 모델을 사용하지 않음.
+                temp.append(tag)
+
+            if tag in model.wv.vocab and index > minTagWeight:
+                for similar in model.wv.most_similar(tag):
+                    temp.append(similar[0])
+                    index = index - 1
+                    if index == 0:
+                        break
+            distinct_list = list(set(temp))
+
+    if len(distinct_list) > 15:  # 만약 이과정을 거쳤는데도 15개보다 많으면
+        import random as rd  # 속도를 위해 랜덤으로 태그를 15개가 될때까지 뺌
+
+        while len(distinct_list) > 15:  # 거의 모든 경우에 7개 이상 ~ 15개 미만의 태그 갯수가 보장됨
+            toKill = rd.choice(distinct_list)  # 한가지 경우만 빼고 보장되는데
+            distinct_list.remove(toKill)  # 태그가 1개나온경우, 그 태그가 min_count보다 적게 나왔을 경우는 추천을 해줄수 없음
+            # 태그가 1개뿐인데 모델에 넣을수 없기 떄문에 이 경우는 어쩔 수 없음.
+    return distinct_list

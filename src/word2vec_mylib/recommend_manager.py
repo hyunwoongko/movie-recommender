@@ -25,3 +25,19 @@ def recommend(recommend_TF, testMovieTF_tags, model):
     result_df = pd.DataFrame(recommend_movies_result, columns=['movieId', 'similarity', 'tags'])
 
     return result_df
+
+
+def get_recommend_df(result_df, testMovieId):
+    result_df = result_df[['movieId', 'similarity', 'rating', 'title', 'genres', 'tags']]
+    result_df = result_df[result_df.movieId != testMovieId]  # 리스트에 현재 영화가 있었다면, 잘라냄
+
+    factor = []
+    for id, sim, rat, tit, gen, tag in result_df.values:
+        factor.append(sim * rat)
+
+    factor = pd.Series(factor)
+    result_df['recommendFactor'] = factor.values
+    result_df = result_df[['movieId', 'recommendFactor', 'title', 'genres', 'tags', 'similarity', 'rating']]
+    result_df = result_df.sort_values(by=['recommendFactor'])
+    result_df = result_df[::-1]
+    return result_df

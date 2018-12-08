@@ -122,7 +122,7 @@ def get_recommend_tags(all_tags, model):
     if len(distinct_list) == 0:  # 태그리스트의 길이가 0이면 태그가 하나도 없는 영화임
         pass  # 그냥 지나침 ---> 어차피 추천을 해줄수 없음
 
-    elif len(distinct_list) == 1:  # 태그 리스트의 길이가 1 (태그가 1개인 영화)
+    if len(distinct_list) == 1:  # 태그 리스트의 길이가 1 (태그가 1개인 영화)
         for tag in distinct_list:  # 그 1개 태그와 유사한 7개 태그를 리스트에 담아냄
             if tag in model.wv.vocab:
                 for new_item in model.wv.most_similar(tag):
@@ -130,13 +130,22 @@ def get_recommend_tags(all_tags, model):
                     if len(additional_append) >= 10:
                         break
 
-    elif len(distinct_list) < 10:  # 태그가 1개이상10개 미만인 경우
+        for new_item in additional_append:  # 새로 꺼내온 아이템을 담아냄.
+            distinct_list.append(new_item)
+        distinct_list = list(set(distinct_list))
+
+    index = 0
+    while len(distinct_list) < 10:  # 태그가 1개이상10개 미만인 경우
         for tag in distinct_list:  # 태그별로 한개씩 담아서 10개 이상으로 만듬
             if tag in model.wv.vocab:  # 예) 태그 8개 -> 1번유사태그1개 , 2번유사태그1개 리스트에 담음
-                new = list(model.wv.most_similar(tag)[0])
+                new = list(model.wv.most_similar(tag)[index])
+                index = index + 1
                 additional_append.append(new[0])
-            if len(additional_append) > 10:
-                break
+            if len(model.wv.most_similar(tag)) == index or len(additional_append) > 8:
+                for new_item in additional_append:  # 새로 꺼내온 아이템을 담아냄.
+                    distinct_list.append(new_item)
+                distinct_list = list(set(distinct_list))
+                return distinct_list
 
     for new_item in additional_append:  # 새로 꺼내온 아이템을 담아냄.
         distinct_list.append(new_item)

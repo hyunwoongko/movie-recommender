@@ -141,7 +141,7 @@ def get_recommend_tags(all_tags, model):
                 new = list(model.wv.most_similar(tag)[index])
                 index = index + 1
                 additional_append.append(new[0])
-            if len(model.wv.most_similar(tag)) == index or len(additional_append) > 8:
+            if (tag in model.wv.vocab and len(model.wv.most_similar(tag)) == index) or len(additional_append) > 8:
                 for new_item in additional_append:  # 새로 꺼내온 아이템을 담아냄.
                     distinct_list.append(new_item)
                 distinct_list = list(set(distinct_list))

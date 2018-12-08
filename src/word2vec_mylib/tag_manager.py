@@ -36,7 +36,7 @@ def get_tag_by_user(tag_df, start_movie, start_user):
     return result_array
 
 
-def get_semantic_tag(test_movie_id, movieTag):
+def get_all_tags_by_freq(test_movie_id, movieTag):
     tag_count = {}
     for movieId, tag in movieTag.values:
         global lower_tag
@@ -52,29 +52,58 @@ def get_semantic_tag(test_movie_id, movieTag):
 
     sorted_list = sorted(tag_count.items(), key=lambda t: t[1], reverse=True)
 
-    semantic = []
+    all_tags_by_freq = []
     for i in sorted_list:
         array = [i[0], i[1]]
-        semantic.append(array)
-    return semantic
+        all_tags_by_freq.append(array)
+    return all_tags_by_freq
 
 
-def get_recommend_tags(TF_list, model):
+def get_TF_tags(all_tags):
+    numberOfAll = 0
+    temp = []
+
+    for tag, numberOfTimes in all_tags:
+        numberOfAll += numberOfTimes
+        # 태그 가중치의 총합을 구함
+
+    for tag, numberOfTimes in all_tags:
+        weightForTag = (numberOfTimes / numberOfAll) * 10
+        index = round(weightForTag)
+        if index != 0:  # 그영화의 모든 태그중 가중치가 10퍼센트 이상인 태그라면
+            temp.append(tag)  # 그 영화의 태그를 리스트에 담음
+
+    return temp
+
+
+def get_TF_tags_for_many(recommend_movies_with_tags):
+    only_movieId = recommend_movies_with_tags.drop_duplicates('movieId')
+    only_movieId = only_movieId.movieId.values
+
+    recommend_TF = []  # 추천된 영화들의 TF 태그들 (가중치 10%이상)
+    for movieId in only_movieId:
+        recommend_movies_all_tags = get_all_tags_by_freq(movieId, recommend_movies_with_tags)  # 추천영화의 모든 태그를 구함
+        recommend_movies_TF_tags = get_TF_tags(recommend_movies_all_tags)  # 추천영화의 TF 태그를 구함
+        recommend_TF.append([movieId, recommend_movies_TF_tags])
+    return recommend_TF
+
+
+def get_recommend_tags(all_tags, model):
     numberOfAll = 0
     minTagWeight = 0
     temp = []
 
-    for tag, numberOfTimes in TF_list:
+    for tag, numberOfTimes in all_tags:
         numberOfAll += numberOfTimes
         # 태그 가중치의 총합을 구함
 
-    for tag, numberOfTimes in TF_list:
+    for tag, numberOfTimes in all_tags:
         weightForTag = (numberOfTimes / numberOfAll) * 10
         index = round(weightForTag)
         minTagWeight = index
         # 태그별 가중치를 구하고 모델을 사용할 최소가중치를 구함
 
-    for tag, numberOfTimes in TF_list:
+    for tag, numberOfTimes in all_tags:
         weightForTag = (numberOfTimes / numberOfAll) * 10
         index = round(weightForTag)
         if index != 0:  # 그영화의 모든 태그중 가중치가 10퍼센트 이상인 태그라면
@@ -98,15 +127,15 @@ def get_recommend_tags(TF_list, model):
             if tag in model.wv.vocab:
                 for new_item in model.wv.most_similar(tag):
                     additional_append.append(new_item[0])
-                    if len(additional_append) >= 7:
+                    if len(additional_append) >= 10:
                         break
 
-    elif len(distinct_list) < 7:  # 태그가 1개이상 7개 미만인 경우
-        for tag in distinct_list:  # 태그별로 한개씩 담아서 7개 이상으로 만듬
-            if tag in model.wv.vocab:  # 예) 태그 5개 -> 1번유사태그1개 , 2번유사태그1개 리스트에 담음
+    elif len(distinct_list) < 10:  # 태그가 1개이상10개 미만인 경우
+        for tag in distinct_list:  # 태그별로 한개씩 담아서 10개 이상으로 만듬
+            if tag in model.wv.vocab:  # 예) 태그 8개 -> 1번유사태그1개 , 2번유사태그1개 리스트에 담음
                 new = list(model.wv.most_similar(tag)[0])
                 additional_append.append(new[0])
-            if len(additional_append) > 7:
+            if len(additional_append) > 10:
                 break
 
     for new_item in additional_append:  # 새로 꺼내온 아이템을 담아냄.
@@ -118,7 +147,7 @@ def get_recommend_tags(TF_list, model):
         distinct_list.clear()  # 다비우고
         temp.clear()  # 처음부터 다시
 
-        for tag, numberOfTimes in TF_list:  # 위와 같은과정을 거치지만
+        for tag, numberOfTimes in all_tags:  # 위와 같은과정을 거치지만
             weightForTag = (numberOfTimes / numberOfAll) * 10  # 최소모델 사용 가중치를 1높혔기 때문에
             index = round(weightForTag)  # 아까보다 10퍼센트 더 높은 비중이 있는 태그들만
             if index != 0:  # 모델에 넣어서 비슷한 태그를 뽑고 아니면 그냥 그 태그만 담고, 모델을 사용하지 않음.

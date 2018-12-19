@@ -23,4 +23,4 @@ To run the repository you will need to download the dataset.
     
 ## Paper
 
-### [Download] (https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)
+### [Download](https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)

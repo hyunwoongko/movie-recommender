@@ -21,6 +21,9 @@ To run the repository you will need to download the dataset.
     /data/movies_small.csv
     
     
-## Paper
+## Paper : [Download](https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)
 
-### [Download](https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)
+<p align="center">     
+<img src="https://user-images.githubusercontent.com/38183241/50212612-c8db5e00-03be-11e9-913b-2fcb2a6bfa94.png">
+</p>
+

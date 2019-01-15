@@ -4,9 +4,7 @@ Movie Recommender System using Word2Vec Model
 
 <br>
 
-## Source Code 
-
-#### Check [Here](https://github.com/gusdnd852/Movie-Recommender/blob/master/src/word2vec_gensim/word2vec_gensim.ipynb)
+## Source Code : [Check Here](https://github.com/gusdnd852/Movie-Recommender/blob/master/src/word2vec_gensim/word2vec_gensim.ipynb)
 
 <br>
 <br>

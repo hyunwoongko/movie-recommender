@@ -3,14 +3,9 @@
 Movie Recommender System using Word2Vec Model
 
 <br>
-
-## Source Code : [Check Here](https://github.com/gusdnd852/Movie-Recommender/blob/master/src/word2vec_gensim/word2vec_gensim.ipynb)
-
 <br>
-<br>
-
-
-## DATA SET 
+    
+## 1. DATA SET 
 
 To run the repository you will need to download the dataset.
 
@@ -27,10 +22,18 @@ To run the repository you will need to download the dataset.
     /data/movies_small.csv
     
 <br>
-    
-## Paper : [Download](https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)
+<br>
+
+## 2. Paper : [Download](https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)
 
 <p align="center">     
 <img src="https://user-images.githubusercontent.com/38183241/50212612-c8db5e00-03be-11e9-913b-2fcb2a6bfa94.png">
 </p>
 
+
+<br>
+<br>
+
+## 3. Analysis 
+
+![s](https://user-images.githubusercontent.com/38183241/51345558-b1d37d00-1ade-11e9-84ec-e5a7b266a631.png)

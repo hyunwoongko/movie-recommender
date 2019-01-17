@@ -20,9 +20,7 @@ Movie Recommender System using Word2Vec Model
     /data/tag_small.csv
     /data/ratings_small.csv
     /data/movies_small.csv
-   
-<br>
-
+ 
 ###### *Provided by Movie Lens*
 <br>
 <br>

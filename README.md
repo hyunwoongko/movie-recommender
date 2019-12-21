@@ -25,11 +25,15 @@ Movie Recommender System using Word2Vec Model
 <br>
 <br>
 
-## 2. Paper : [Download](https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)
+## [2. Paper](https://github.com/gusdnd852/Movie-Recommender/blob/master/Collaborative%20filtering%20based%20on%20Word2Vec.docx?raw=true)
 
-###### *Title : Word2Vec based Movie Recommendation Technique using Tag Data*
-###### *Authos : Hyunwoong Go, Semin Kim, Joongi Hong, Jiwoo Noh, Suntae Kim*
+If you use this code for your research, please cite our papers.
 
+    @inproceedings{Movie Recommender,
+      title={Word2Vec based Movie Recommendation Technique using Tag Data},
+      author={Hyunwoong Go, Semin Kim, Joongi Hong, Jiwoo Noh, Suntae Kim},
+      year={2019}
+    }
 
 <br>
 <br>
